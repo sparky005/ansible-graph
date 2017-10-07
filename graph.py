@@ -3,9 +3,11 @@
 import argparse
 import yaml
 from graphviz import Digraph
-
+# pylint: disable=invalid-name
 roles_base = './roles'
 
+# i think here we should just return src, dest tuples
+# instead of a list of roles
 def parse_single_file(file):
     """Parses a single playbook"""
     roles = []
@@ -33,6 +35,8 @@ def parse_single_file(file):
 
     return roles
 
+# maybe instead i should just glob the whole directory structure
+# and create a link whenever i find hte word 'include'
 def link_roles(dependent, depended):
     """
     Links the roles we've found
@@ -57,10 +61,15 @@ if __name__ == '__main__':
         '--file',
         '-f',
         help='File to generate graph',
-        required=True
+    )
+    parser.add_argument(
+        '--roles-path',
+        '-r',
+        help='Path to roles directory'
     )
     args = parser.parse_args()
 
     role_path = args.file
-    roles = parse_single_file(role_path)
-    link_roles(role_path, roles)
+    if args.file:
+        roles = parse_single_file(role_path)
+        link_roles(role_path, roles)
