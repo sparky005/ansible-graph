@@ -18,6 +18,7 @@ def parse_single_file(file):
     # yaml file is broken down by header
     # first, we just get the listed roles in roles:
     for role in playbook['roles']:
+        # roles that have variables are dicts
         if isinstance(role, dict):
             roles.append(role['role'])
         else:
@@ -41,10 +42,10 @@ def link_roles(dependent, depended):
     """
     dot = Digraph(comment='The Round Table')
     dot.attr(size='18,50', layout='dot')
+    dot.graph_attr['rankdir'] = 'LR'
     # create main node
     dot.node('head', dependent)
     for role in depended:
-        dot.node(role)
         dot.edge('head', role)
     dot.render('test-output/round-table.gv', view=True)
     print(dot.source)
@@ -52,7 +53,6 @@ def link_roles(dependent, depended):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-
     parser.add_argument(
         '--file',
         '-f',
