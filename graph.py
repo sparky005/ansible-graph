@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import argparse
 import yaml
 from graphviz import Digraph
 
@@ -50,6 +51,16 @@ def link_roles(dependent, depended):
 
 
 if __name__ == '__main__':
-    role_path = '/home/asadik/repos/playbooks/windows/qs_desktop.yml'
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        '--file',
+        '-f',
+        help='File to generate graph',
+        required=True
+    )
+    args = parser.parse_args()
+
+    role_path = args.file
     roles = parse_single_file(role_path)
     link_roles(role_path, roles)
