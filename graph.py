@@ -4,9 +4,17 @@ import os
 import argparse
 import yaml
 import glob
+import logging
 from graphviz import Digraph
 # pylint: disable=invalid-name
 roles_base = './roles'
+
+# set up logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+handler = logging.FileHandler('ansible-graph.log')
+handler.setLevel(logging.INFO)
+logger.addHandler(handler)
 
 # i think here we should just return src, dest tuples
 # instead of a list of roles
@@ -57,8 +65,7 @@ def link_roles(dependent, depended):
     print(dot.source)
 
 def find_nodes(roles_path):
-    for filename in glob.iglob(os.path.join(roles_path, '**/*.y*ml'), recursive=True):
-        print(filename)
+    return glob.iglob(os.path.join(roles_path, '**/*.y*ml'), recursive=True)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -80,4 +87,5 @@ if __name__ == '__main__':
         link_roles(role_path, roles)
     else:
         roles_path = args.roles_path
-        find_nodes(roles_path)
+        roles = find_nodes(roles_path)
+        edges = find_edges(roles)
