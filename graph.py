@@ -2,12 +2,11 @@
 
 import os
 import argparse
-import yaml
 import glob
 import logging
+import yaml
 from graphviz import Digraph
 # pylint: disable=invalid-name
-roles_base = './roles'
 
 # set up logging
 logger = logging.getLogger(__name__)
@@ -65,6 +64,9 @@ def link_roles(dependent, depended):
     print(dot.source)
 
 def find_nodes(roles_path):
+    # rather than trying to handle all the exceptions above
+    # we should probably just get rid of the files here
+    # that we know we'll never care about
     return glob.iglob(os.path.join(roles_path, '**/*.y*ml'), recursive=True)
 
 if __name__ == '__main__':
@@ -88,4 +90,5 @@ if __name__ == '__main__':
     else:
         roles_path = args.roles_path
         roles = find_nodes(roles_path)
-        edges = find_edges(roles)
+        for role in roles:
+            print(role)
