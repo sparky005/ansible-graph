@@ -66,7 +66,8 @@ def link_roles(dependent, depended):
 def find_nodes(roles_path):
     # we don't care about the following types of files
     # so we will exclude them from the list of nodes
-    exclusions = 'templates', 'vars', 'defaults', 'handlers', 'meta'
+    # they will never be dependents, only dependencies
+    exclusions = 'templates', 'vars', 'defaults', 'handlers', 'meta', 'shared'
     return [f for f in glob.iglob(os.path.join(roles_path, '**/*.y*ml'), recursive=True) if not any(x in f for x in exclusions)]
 
 if __name__ == '__main__':
