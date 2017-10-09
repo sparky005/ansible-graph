@@ -64,10 +64,10 @@ def link_roles(dependent, depended):
     print(dot.source)
 
 def find_nodes(roles_path):
-    # rather than trying to handle all the exceptions above
-    # we should probably just get rid of the files here
-    # that we know we'll never care about
-    return glob.iglob(os.path.join(roles_path, '**/*.y*ml'), recursive=True)
+    # we don't care about the following types of files
+    # so we will exclude them from the list of nodes
+    exclusions = 'templates', 'vars', 'defaults', 'handlers', 'meta'
+    return [f for f in glob.iglob(os.path.join(roles_path, '**/*.y*ml'), recursive=True) if not any(x in f for x in exclusions)]
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
