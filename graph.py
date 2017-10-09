@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 
+import os
 import argparse
 import yaml
+import glob
 from graphviz import Digraph
 # pylint: disable=invalid-name
 roles_base = './roles'
@@ -54,6 +56,9 @@ def link_roles(dependent, depended):
     dot.render('test-output/round-table.gv', view=True)
     print(dot.source)
 
+def find_nodes(roles_path):
+    for filename in glob.iglob(os.path.join(roles_path, '**/*.y*ml'), recursive=True):
+        print(filename)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -69,7 +74,10 @@ if __name__ == '__main__':
     )
     args = parser.parse_args()
 
-    role_path = args.file
     if args.file:
+        role_path = args.file
         roles = parse_single_file(role_path)
         link_roles(role_path, roles)
+    else:
+        roles_path = args.roles_path
+        find_nodes(roles_path)
