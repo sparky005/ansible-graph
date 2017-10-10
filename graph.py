@@ -157,6 +157,13 @@ if __name__ == '__main__':
         link_roles(role_path, roles)
     else:
         roles_path = args.roles_path
-        roles = find_nodes(roles_path)
-        for role in roles:
-            print(role)
+        nodes = find_nodes(roles_path)
+        # let's parse roles and playbooks separately
+        logger.info("BEGIN PROCESSING PLAYBOOKS")
+        edges = [parse_playbook(node) for node in nodes if 'roles' not in node]
+        logger.info("END PROCESSING PLAYBOOKS")
+        logger.info("BEGIN PROCESSING ROLES")
+        edges += [parse_role(node) for node in nodes if 'roles' in node]
+        logger.info("END PROCESSING ROLES")
+        for edge in edges:
+            print(edge)
