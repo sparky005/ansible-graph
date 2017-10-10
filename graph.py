@@ -171,5 +171,11 @@ if __name__ == '__main__':
         edges += parse_roles(roles)
         logger.info("END PROCESSING ROLES")
 
+
+        dot = Digraph(comment='Ansible Dependency Tree')
+        dot.attr(size='18,50', layout='dot')
+        dot.graph_attr['rankdir'] = 'LR'
         for edge in edges:
-            print(edge)
+            dot.edge(edge[0], edge[1])
+        dot.render('test-output/round-table.gv', view=True)
+        print(dot.source)
