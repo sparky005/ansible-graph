@@ -72,69 +72,71 @@ def find_nodes(roles_path):
     exclusions = 'templates', 'vars', 'defaults', 'handlers', 'meta', 'shared'
     return [f for f in glob.iglob(os.path.join(roles_path, '**/*.y*ml'), recursive=True) if not any(x in f for x in exclusions)]
 
-def parse_role(node):
-    """Parses a role file"""
+def parse_roles(nodes):
+    """Parses a list of roles"""
     edges = []
-    logger.info("Now processing %s", node)
-    with open(node, 'r') as f:
-        playbook = yaml.load(f)
+    for node in nodes:
+        logger.info("Now processing %s", node)
+        with open(node, 'r') as f:
+            playbook = yaml.load(f)
 
-    for task in playbook:
-        try:
-            for key, value in task.items():
-                if key == 'include' or key == 'include_role':
-                    if isinstance(value, dict):
-                        # roles that have variables are dicts
-                        edges.append((node, value['name']))
-                    else:
-                        # otherwise, they're just strings
-                        edges.append((node, value))
-        except AttributeError:
-            logger.warning("Hit AttributeError on %s.", node)
+        for task in playbook:
+            try:
+                for key, value in task.items():
+                    if key == 'include' or key == 'include_role':
+                        if isinstance(value, dict):
+                            # roles that have variables are dicts
+                            edges.append((node, value['name']))
+                        else:
+                            # otherwise, they're just strings
+                            edges.append((node, value))
+            except AttributeError:
+                logger.warning("Hit AttributeError on %s.", node)
 
     return edges
 
-def parse_playbook(node):
-    """Parses a single playbook"""
+def parse_playbooks(nodes):
+    """Parses a list of playbooks"""
     edges = []
-    logger.info("Now processing %s", node)
-    try:
-        with open(node, 'r') as f:
-            playbook = yaml.load(f)
-    except yaml.constructor.ConstructorError:
-        logger.error("Could not parse %s. This can happen with files that have a vault key. Skipping", node)
-        return None
-    # playbook gets loaded as a len 1 list of dicts
-    # set y = 1 element, to make life easier
-    playbook = playbook[0]
+    for node in nodes:
+        logger.info("Now processing %s", node)
+        try:
+            with open(node, 'r') as f:
+                playbook = yaml.load(f)
+        except yaml.constructor.ConstructorError:
+            logger.error("Could not parse %s. This can happen with files that have a vault key. Skipping", node)
+            continue
+        # playbook gets loaded as a len 1 list of dicts
+        # set y = 1 element, to make life easier
+        playbook = playbook[0]
 
-    # handle empty file
-    if not playbook:
-        return None
+        # handle empty file
+        if not playbook:
+            continue
 
-    # yaml file is broken down by header
-    # first, we just get the listed roles in roles:
-    try:
-        for role in playbook['roles']:
-            # roles that have variables are dicts
-            if isinstance(role, dict):
-                edges.append((node, role['role']))
-            else:
-                edges.append((node, role))
-    except KeyError:
-        logger.warning("No roles found in %s", node)
+        # yaml file is broken down by header
+        # first, we just get the listed roles in roles:
+        try:
+            for role in playbook['roles']:
+                # roles that have variables are dicts
+                if isinstance(role, dict):
+                    edges.append((node, role['role']))
+                else:
+                    edges.append((node, role))
+        except KeyError:
+            logger.warning("No roles found in %s", node)
 
-    # next, we get the roles that are called by include_role
-    # these are in the task key
-    try:
-        for task in playbook['tasks']:
-            for key, value in task.items():
-                if key == 'include_role':
-                    edges.append((node, value['name']))
-    except KeyError:
-        logger.warning("No tasks found in %s", node)
-    except TypeError:
-        logger.warning("Could not parse part of %s. Likely malformed file.", node)
+        # next, we get the roles that are called by include_role
+        # these are in the task key
+        try:
+            for task in playbook['tasks']:
+                for key, value in task.items():
+                    if key == 'include_role':
+                        edges.append((node, value['name']))
+        except KeyError:
+            logger.warning("No tasks found in %s", node)
+        except TypeError:
+            logger.warning("Could not parse part of %s. Likely malformed file.", node)
     return edges
 
 if __name__ == '__main__':
@@ -158,12 +160,16 @@ if __name__ == '__main__':
     else:
         roles_path = args.roles_path
         nodes = find_nodes(roles_path)
-        # let's parse roles and playbooks separately
+        # separate roles and playbooks
+        playbooks = [node for node in nodes if 'roles' not in node]
+        roles = [node for node in nodes if 'roles' in node]
+
         logger.info("BEGIN PROCESSING PLAYBOOKS")
-        edges = [parse_playbook(node) for node in nodes if 'roles' not in node]
+        edges = parse_playbooks(playbooks)
         logger.info("END PROCESSING PLAYBOOKS")
         logger.info("BEGIN PROCESSING ROLES")
-        edges += [parse_role(node) for node in nodes if 'roles' in node]
+        edges += parse_roles(roles)
         logger.info("END PROCESSING ROLES")
+
         for edge in edges:
             print(edge)
