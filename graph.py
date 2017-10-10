@@ -72,6 +72,28 @@ def find_nodes(roles_path):
     exclusions = 'templates', 'vars', 'defaults', 'handlers', 'meta', 'shared'
     return [f for f in glob.iglob(os.path.join(roles_path, '**/*.y*ml'), recursive=True) if not any(x in f for x in exclusions)]
 
+def parse_role(node):
+    """Parses a role file"""
+    edges = []
+    logger.info("Now processing %s", node)
+    with open(node, 'r') as f:
+        playbook = yaml.load(f)
+
+    for task in playbook:
+        try:
+            for key, value in task.items():
+                if key == 'include' or key == 'include_role':
+                    if isinstance(value, dict):
+                        # roles that have variables are dicts
+                        edges.append((node, value['name']))
+                    else:
+                        # otherwise, they're just strings
+                        edges.append((node, value))
+        except AttributeError:
+            logger.warning("Hit AttributeError on %s.", node)
+
+    return edges
+
 def parse_playbook(node):
     """Parses a single playbook"""
     edges = []
