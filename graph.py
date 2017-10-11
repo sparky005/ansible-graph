@@ -186,7 +186,7 @@ if __name__ == '__main__':
 
 
         dot = Digraph(comment='Ansible Dependency Tree')
-        dot.attr(size='18,50', layout='dot')
+        dot.attr(ranksep='10.2', nodesep='1.2', layout='dot')
         dot.graph_attr['rankdir'] = 'LR'
         for edge in edges:
             dot.edge(edge[0], edge[1])
