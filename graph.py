@@ -161,6 +161,9 @@ if __name__ == '__main__':
         roles_path = args.roles_path
         nodes = find_nodes(roles_path)
         # separate roles and playbooks
+        # TODO: refactor so that instead of splitting into two lists
+        # move the separation logic into a parse_all function
+        # and then parse each thing individually based on that
         playbooks = [node for node in nodes if 'roles' not in node]
         roles = [node for node in nodes if 'roles' in node]
 
