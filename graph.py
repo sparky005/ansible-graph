@@ -174,6 +174,16 @@ if __name__ == '__main__':
         edges += parse_roles(roles)
         logger.info("END PROCESSING ROLES")
 
+        # fix edge destinations to full paths
+        # that match the paths we have in roles
+        # alternatively, we could just add 'roles' and apppend
+        # 'tasks/main.yml' to every role
+        for i, edge in enumerate(edges):
+            for role in roles:
+                if edge[1] in role:
+                    t = (edges[i][0], role)
+                    edges[i] = t
+
 
         dot = Digraph(comment='Ansible Dependency Tree')
         dot.attr(size='18,50', layout='dot')
