@@ -180,7 +180,8 @@ if __name__ == '__main__':
         # 'tasks/main.yml' to every role
         for i, edge in enumerate(edges):
             for role in roles:
-                if edge[1] in role:
+                if edge[1] in role and 'main.yml' in role:
+                    logger.warning("Renaming %s to %s", edge[1], role)
                     t = (edges[i][0], role)
                     edges[i] = t
 
