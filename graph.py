@@ -176,14 +176,22 @@ if __name__ == '__main__':
 
         # fix edge destinations to full paths
         # that match the paths we have in roles
-        # alternatively, we could just add 'roles' and apppend
-        # 'tasks/main.yml' to every role
         for i, edge in enumerate(edges):
             for role in roles:
+                # rename role inclusions to point to the main.yml
                 if edge[1] in role and 'main.yml' in role:
+                    logger.info("Main role file found for %s", edge[1])
                     logger.warning("Renaming %s to %s", edge[1], role)
                     t = (edges[i][0], role)
                     edges[i] = t
+                    break
+                # rename other inclusions to point to
+                # corresponding file
+                elif edge[1] in role:
+                    logger.info("Task file found for %s", edge[1])
+                    logger.warning("Renaming %s to %s", edge[1], role)
+                    new_edge = (edges[i][0], role)
+                    edges[i] = new_edge
 
 
         dot = Digraph(comment='Ansible Dependency Tree')
