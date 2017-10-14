@@ -26,6 +26,7 @@ def find_nodes(roles_path):
     exclusions = 'templates', 'vars', 'defaults', 'handlers', 'meta', 'shared'
     return [f for f in glob.iglob(os.path.join(roles_path, '**/*.y*ml'), recursive=True) if not any(x in f for x in exclusions)]
 
+
 def parse_role(node, task):
     edges = []
     try:
@@ -39,7 +40,9 @@ def parse_role(node, task):
                     edges.append((node, value))
     except AttributeError:
         logger.warning("Hit AttributeError on %s.", node)
+
     return edges
+
 
 def parse_roles(nodes):
     """Parses a list of roles"""
@@ -58,6 +61,7 @@ def parse_roles(nodes):
                 edges += parse_role(node, task)
 
     return edges
+
 
 def parse_playbooks(nodes):
     """Parses a list of playbooks"""
@@ -101,7 +105,35 @@ def parse_playbooks(nodes):
             logger.warning("No tasks found in %s", node)
         except TypeError:
             logger.warning("Could not parse part of %s. Likely malformed file.", node)
+
     return edges
+
+
+def rename_edges(edges):
+    # fix edge destinations to full paths
+    # that match the paths we have in roles
+    for i, edge in enumerate(edges):
+        for role in roles:
+            # get edge[0] platform
+            edge_list = edge[0].split('/')
+            platform = edge_list[edge_list.index('playbooks')+1]
+            # rename role inclusions to point to the main.yml
+            if edge[1] in role and 'main.yml' in role and platform in role:
+                logger.info("Main role file found for %s", edge[1])
+                logger.warning("Renaming %s to %s", edge[1], role)
+                t = (edges[i][0], role)
+                edges[i] = t
+                break
+            # rename other inclusions to point to
+            # corresponding file
+            elif edge[1] in role and platform in role:
+                logger.info("Task file found for %s", edge[1])
+                logger.warning("Renaming %s to %s", edge[1], role)
+                new_edge = (edges[i][0], role)
+                edges[i] = new_edge
+
+    return edges
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -128,27 +160,8 @@ if __name__ == '__main__':
     edges += parse_roles(roles)
     logger.info("END PROCESSING ROLES")
 
-    # fix edge destinations to full paths
-    # that match the paths we have in roles
-    for i, edge in enumerate(edges):
-        for role in roles:
-            # get edge[0] platform
-            edge_list = edge[0].split('/')
-            platform = edge_list[edge_list.index('playbooks')+1]
-            # rename role inclusions to point to the main.yml
-            if edge[1] in role and 'main.yml' in role and platform in role:
-                logger.info("Main role file found for %s", edge[1])
-                logger.warning("Renaming %s to %s", edge[1], role)
-                t = (edges[i][0], role)
-                edges[i] = t
-                break
-            # rename other inclusions to point to
-            # corresponding file
-            elif edge[1] in role and platform in role:
-                logger.info("Task file found for %s", edge[1])
-                logger.warning("Renaming %s to %s", edge[1], role)
-                new_edge = (edges[i][0], role)
-                edges[i] = new_edge
+    edges = rename_edges(edges)
+
     # remove duplicates
     edges = set(edges)
 
