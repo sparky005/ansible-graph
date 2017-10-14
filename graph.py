@@ -26,6 +26,21 @@ def find_nodes(roles_path):
     exclusions = 'templates', 'vars', 'defaults', 'handlers', 'meta', 'shared'
     return [f for f in glob.iglob(os.path.join(roles_path, '**/*.y*ml'), recursive=True) if not any(x in f for x in exclusions)]
 
+def parse_role(node, task):
+    edges = []
+    try:
+        for key, value in task.items():
+            if key == 'include' or key == 'include_role':
+                if isinstance(value, dict):
+                    # roles that have variables are dicts
+                    edges.append((node, value['name']))
+                else:
+                    # otherwise, they're just strings
+                    edges.append((node, value))
+    except AttributeError:
+        logger.warning("Hit AttributeError on %s.", node)
+    return edges
+
 def parse_roles(nodes):
     """Parses a list of roles"""
     edges = []
@@ -35,17 +50,12 @@ def parse_roles(nodes):
             playbook = yaml.load(f)
 
         for task in playbook:
-            try:
-                for key, value in task.items():
-                    if key == 'include' or key == 'include_role':
-                        if isinstance(value, dict):
-                            # roles that have variables are dicts
-                            edges.append((node, value['name']))
-                        else:
-                            # otherwise, they're just strings
-                            edges.append((node, value))
-            except AttributeError:
-                logger.warning("Hit AttributeError on %s.", node)
+            if isinstance(task, dict) and 'block' in task.keys():
+                task = task['block']
+                for item in task:
+                    edges += parse_role(node, item)
+            else:
+                edges += parse_role(node, task)
 
     return edges
 
@@ -144,4 +154,3 @@ if __name__ == '__main__':
     for edge in edges:
         dot.edge(edge[0], edge[1])
     dot.render('test-output/round-table.gv', view=True)
-    print(dot.source)
