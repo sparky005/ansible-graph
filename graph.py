@@ -9,14 +9,6 @@ from graphviz import Digraph
 # pylint: disable=invalid-name
 # pylint: disable=line-too-long
 
-# set up logging
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
-handler = logging.FileHandler('ansible-graph.log')
-handler.setLevel(logging.INFO)
-formatter = logging.Formatter('%(asctime)s - %(levelname)s: %(message)s')
-handler.setFormatter(formatter)
-logger.addHandler(handler)
 
 
 def find_nodes(roles_path):
@@ -136,6 +128,16 @@ def rename_edges(edges):
 
 
 if __name__ == '__main__':
+
+    # set up logging
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.INFO)
+    handler = logging.FileHandler('ansible-graph.log')
+    handler.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s: %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '--roles-path',
