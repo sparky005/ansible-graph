@@ -22,3 +22,11 @@ def test_parse_roles(roles, fake_nodes):
     assert len(edges) == 3
     assert isinstance(edges[0], tuple)
     assert all('roles' in edge[0] for edge in edges)
+
+def test_rename_edges(edges, roles, fake_nodes):
+    edges = rename_edges(edges, roles)
+    assert isinstance(edges, list)
+    assert len(edges) == 6
+    assert isinstance(edges[0], tuple)
+    assert all('yml' in edge[0] or 'yaml' in edge[0] for edge in edges)
+    assert all('yml' in edge[1] or 'yaml' in edge[1] for edge in edges)
