@@ -146,6 +146,9 @@ if __name__ == '__main__':
 
     roles_path = args.roles_path
     nodes = find_nodes(roles_path)
+    logger.info("Found nodes:")
+    for node in nodes:
+        logger.info(node)
     # separate roles and playbooks
     # TODO: refactor so that instead of splitting into two lists
     # move the separation logic into a parse_all function
