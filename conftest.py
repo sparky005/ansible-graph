@@ -21,7 +21,7 @@ def nodes(roles, playbooks):
     return roles + playbooks
 
 @pytest.fixture
-def edges():
+def raw_edges():
     return [('/tmp/playbooks/windows/test_playbook.yml', 'windows_common'),
             ('/tmp/playbooks/windows/test_playbook.yml', 'dept_common'),
             ('/tmp/playbooks/windows/test_playbook.yml', 'application/application2'),
@@ -29,7 +29,7 @@ def edges():
             ('/tmp/playbooks/windows/roles/dept_common/tasks/main.yml', 'applications/test_inclusion'),
             ('/tmp/playbooks/windows/roles/application/application2/tasks/main.yml', 'applications/test_inclusion')]
 
-@pytest.yield_fixture(scope='session')
+@pytest.yield_fixture()
 def fake_nodes():
     """ Fake filesystem. """
     patcher = Patcher()
