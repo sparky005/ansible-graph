@@ -6,7 +6,7 @@ def test_find_nodes(roles_path, fake_nodes):
     nodes = find_nodes(roles_path)
     assert roles_path == '/tmp/playbooks'
     assert isinstance(nodes, list)
-    assert len(nodes) == 5
+    assert len(nodes) == 6
     assert isinstance(nodes[0], str)
     assert all('yml' in node or 'yaml' in node for node in nodes)
 
@@ -15,3 +15,10 @@ def test_parse_playbooks(playbooks, fake_nodes):
     assert isinstance(edges, list)
     assert len(edges) == 3
     assert isinstance(edges[0], tuple)
+
+def test_parse_roles(roles, fake_nodes):
+    edges = parse_roles(roles)
+    assert isinstance(edges, list)
+    assert len(edges) == 3
+    assert isinstance(edges[0], tuple)
+    assert all('roles' in edge[0] for edge in edges)

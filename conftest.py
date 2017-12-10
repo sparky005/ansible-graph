@@ -11,7 +11,9 @@ def playbooks():
 
 @pytest.fixture
 def roles():
-    return []
+    return ['/tmp/playbooks/roles/windows_common/tasks/main.yml',
+            '/tmp/playbooks/roles/dept_common/tasks/main.yml',
+            '/tmp/playbooks/roles/application/application2/tasks/main.yml']
 
 @pytest.yield_fixture(scope='session')
 def fake_nodes():
@@ -20,6 +22,8 @@ def fake_nodes():
     patcher.setUp()
     # TODO: create some linux playbooks in subdir
     # for more realistic test
+
+    # fake playbooks
     patcher.fs.CreateFile('/tmp/playbooks/test_playbook.yml',
                         contents="""---
                         - hosts: all
@@ -38,11 +42,29 @@ def fake_nodes():
                         - hosts: all
                           tasks:
                           """)
-    # TODO: create some stuff for these roles to import
-    # so that we can properly get nesting
-    patcher.fs.CreateFile('/tmp/playbooks/roles/windows_common/tasks/main.yml')
-    patcher.fs.CreateFile('/tmp/playbooks/roles/dept_common/tasks/main.yml')
-    patcher.fs.CreateFile('/tmp/playbooks/roles/application/application2/tasks/main.yml')
+
+    # fake roles
+    patcher.fs.CreateFile('/tmp/playbooks/roles/windows_common/tasks/main.yml',
+                        contents="""---
+                        - include_role:
+                            name: applications/test_inclusion
+                        """)
+    patcher.fs.CreateFile('/tmp/playbooks/roles/dept_common/tasks/main.yml',
+                        contents="""---
+                        - include_role:
+                            name: applications/test_inclusion
+                        """)
+    patcher.fs.CreateFile('/tmp/playbooks/roles/application/application2/tasks/main.yml',
+                        contents="""---
+                        - include_role:
+                            name: applications/test_inclusion
+                        """)
+    patcher.fs.CreateFile('/tmp/playbooks/roles/applications/test_inclusion/tasks/main.yml',
+                        contents="""---
+                        - name: say hi
+                          win_ping
+                            data: hi
+                        """)
     yield
     patcher.tearDown()
 
