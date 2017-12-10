@@ -23,8 +23,13 @@ def find_nodes(roles_path):
     # so we will exclude them from the list of nodes
     # they will never be dependents, only dependencies
     exclusions = 'templates', 'vars', 'defaults', 'handlers', 'meta', 'shared'
-    return [f for f in glob.iglob(os.path.join(roles_path, '**/*.y*ml'), recursive=True) if not any(x in f for x in exclusions)]
+    nodes = [f for f in glob.iglob(os.path.join(roles_path, '**/*.y*ml'), recursive=True) if not any(x in f for x in exclusions)]
 
+    logger.info("Found nodes:")
+    for node in nodes:
+        logger.info(node)
+
+    return nodes
 
 def parse_role(node, task):
     edges = []
@@ -153,6 +158,10 @@ def rename_edges(edges, nodes):
 
 def build_graph(edges):
     """Build graph from found edges"""
+
+    # remove duplicates
+    edges = set(edges)
+
     dot = Digraph(comment='Ansible Dependency Tree', node_attr={'fontsize': '48'})
     dot.attr(ranksep='10.2', nodesep='1.2', layout='dot')
     dot.graph_attr['rankdir'] = 'LR'
@@ -174,15 +183,9 @@ if __name__ == '__main__':
     roles_path = args.roles_path
     nodes = find_nodes(roles_path)
 
-    logger.info("Found nodes:")
-    for node in nodes:
-        logger.info(node)
 
     edges = parse_roles_and_playbooks(nodes)
     edges = rename_edges(edges, nodes)
-
-    # remove duplicates
-    edges = set(edges)
 
     dot = build_graph(edges)
     dot.render('test-output/round-table.gv')
