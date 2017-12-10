@@ -108,7 +108,7 @@ def parse_playbooks(nodes):
     return edges
 
 
-def rename_edges(edges):
+def rename_edges(edges, roles):
     # fix edge destinations to full paths
     # that match the paths we have in roles
     for i, edge in enumerate(edges):
@@ -163,7 +163,7 @@ if __name__ == '__main__':
     edges += parse_roles(roles)
     logger.info("END PROCESSING ROLES")
 
-    edges = rename_edges(edges)
+    edges = rename_edges(edges, roles)
 
     # remove duplicates
     edges = set(edges)
