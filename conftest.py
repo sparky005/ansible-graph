@@ -17,6 +17,10 @@ def roles():
             '/tmp/playbooks/windows/roles/applications/test_inclusion/tasks/main.yml']
 
 @pytest.fixture
+def nodes(roles, playbooks):
+    return roles + playbooks
+
+@pytest.fixture
 def edges():
     return [('/tmp/playbooks/windows/test_playbook.yml', 'windows_common'),
             ('/tmp/playbooks/windows/test_playbook.yml', 'dept_common'),
