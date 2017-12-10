@@ -38,6 +38,8 @@ def fake_nodes():
                         - hosts: all
                           tasks:
                           """)
+    # TODO: create some stuff for these roles to import
+    # so that we can properly get nesting
     patcher.fs.CreateFile('/tmp/playbooks/roles/windows_common/tasks/main.yml')
     patcher.fs.CreateFile('/tmp/playbooks/roles/dept_common/tasks/main.yml')
     patcher.fs.CreateFile('/tmp/playbooks/roles/application/application2/tasks/main.yml')
