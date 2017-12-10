@@ -7,13 +7,23 @@ def roles_path():
 
 @pytest.fixture
 def playbooks():
-    return ['/tmp/playbooks/test_playbook.yml', '/tmp/playbooks/test2.yml']
+    return ['/tmp/playbooks/windows/test_playbook.yml', '/tmp/playbooks/windows/test2.yml']
 
 @pytest.fixture
 def roles():
-    return ['/tmp/playbooks/roles/windows_common/tasks/main.yml',
-            '/tmp/playbooks/roles/dept_common/tasks/main.yml',
-            '/tmp/playbooks/roles/application/application2/tasks/main.yml']
+    return ['/tmp/playbooks/windows/roles/windows_common/tasks/main.yml',
+            '/tmp/playbooks/windows/roles/dept_common/tasks/main.yml',
+            '/tmp/playbooks/windows/roles/application/application2/tasks/main.yml',
+            '/tmp/playbooks/windows/roles/applications/test_inclusion/tasks/main.yml']
+
+@pytest.fixture
+def edges():
+    return [('/tmp/playbooks/windows/test_playbook.yml', 'windows_common'),
+            ('/tmp/playbooks/windows/test_playbook.yml', 'dept_common'),
+            ('/tmp/playbooks/windows/test_playbook.yml', 'application/application2'),
+            ('/tmp/playbooks/windows/roles/windows_common/tasks/main.yml', 'applications/test_inclusion'),
+            ('/tmp/playbooks/windows/roles/dept_common/tasks/main.yml', 'applications/test_inclusion'),
+            ('/tmp/playbooks/windows/roles/application/application2/tasks/main.yml', 'applications/test_inclusion')]
 
 @pytest.yield_fixture(scope='session')
 def fake_nodes():
@@ -24,7 +34,7 @@ def fake_nodes():
     # for more realistic test
 
     # fake playbooks
-    patcher.fs.CreateFile('/tmp/playbooks/test_playbook.yml',
+    patcher.fs.CreateFile('/tmp/playbooks/windows/test_playbook.yml',
                         contents="""---
                         - hosts: all
                           gather_facts: true
@@ -37,32 +47,32 @@ def fake_nodes():
                             - include_role:
                                 name: application/application2
                         """)
-    patcher.fs.CreateFile('/tmp/playbooks/test2.yml',
+    patcher.fs.CreateFile('/tmp/playbooks/windows/test2.yml',
                         contents="""---
                         - hosts: all
                           tasks:
                           """)
 
     # fake roles
-    patcher.fs.CreateFile('/tmp/playbooks/roles/windows_common/tasks/main.yml',
+    patcher.fs.CreateFile('/tmp/playbooks/windows/roles/windows_common/tasks/main.yml',
                         contents="""---
                         - include_role:
                             name: applications/test_inclusion
                         """)
-    patcher.fs.CreateFile('/tmp/playbooks/roles/dept_common/tasks/main.yml',
+    patcher.fs.CreateFile('/tmp/playbooks/windows/roles/dept_common/tasks/main.yml',
                         contents="""---
                         - include_role:
                             name: applications/test_inclusion
                         """)
-    patcher.fs.CreateFile('/tmp/playbooks/roles/application/application2/tasks/main.yml',
+    patcher.fs.CreateFile('/tmp/playbooks/windows/roles/application/application2/tasks/main.yml',
                         contents="""---
                         - include_role:
                             name: applications/test_inclusion
                         """)
-    patcher.fs.CreateFile('/tmp/playbooks/roles/applications/test_inclusion/tasks/main.yml',
+    patcher.fs.CreateFile('/tmp/playbooks/windows/roles/applications/test_inclusion/tasks/main.yml',
                         contents="""---
                         - name: say hi
-                          win_ping
+                          win_ping:
                             data: hi
                         """)
     yield
