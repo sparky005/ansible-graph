@@ -183,7 +183,6 @@ if __name__ == '__main__':
     roles_path = args.roles_path
     nodes = find_nodes(roles_path)
 
-
     edges = parse_roles_and_playbooks(nodes)
     edges = rename_edges(edges, nodes)
 
