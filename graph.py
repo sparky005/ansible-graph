@@ -125,7 +125,6 @@ def parse_roles_and_playbooks(nodes):
     return edges
 
 def rename_edges(edges, nodes):
-
     # get role names
     roles = [node for node in nodes if 'roles' in node]
     # fix edge destinations to full paths
@@ -152,6 +151,15 @@ def rename_edges(edges, nodes):
 
     return edges
 
+def build_graph(edges):
+    """Build graph from found edges"""
+    dot = Digraph(comment='Ansible Dependency Tree', node_attr={'fontsize': '48'})
+    dot.attr(ranksep='10.2', nodesep='1.2', layout='dot')
+    dot.graph_attr['rankdir'] = 'LR'
+    for edge in edges:
+        dot.edge(edge[0], edge[1])
+
+    return dot
 
 if __name__ == '__main__':
 
@@ -176,9 +184,5 @@ if __name__ == '__main__':
     # remove duplicates
     edges = set(edges)
 
-    dot = Digraph(comment='Ansible Dependency Tree', node_attr={'fontsize': '48'})
-    dot.attr(ranksep='10.2', nodesep='1.2', layout='dot')
-    dot.graph_attr['rankdir'] = 'LR'
-    for edge in edges:
-        dot.edge(edge[0], edge[1])
-    dot.render('test-output/round-table.gv', view=True)
+    dot = build_graph(edges)
+    dot.render('test-output/round-table.gv')

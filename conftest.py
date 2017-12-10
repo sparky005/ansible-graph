@@ -29,6 +29,19 @@ def raw_edges():
             ('/tmp/playbooks/windows/roles/dept_common/tasks/main.yml', 'applications/test_inclusion'),
             ('/tmp/playbooks/windows/roles/application/application2/tasks/main.yml', 'applications/test_inclusion')]
 
+@pytest.fixture
+def named_edges():
+    # edges, once properly renamed
+    edges = [
+        ('/tmp/playbooks/windows/test_playbook.yml', '/tmp/playbooks/windows/roles/windows_common/tasks/main.yml'),
+        ('/tmp/playbooks/windows/test_playbook.yml', '/tmp/playbooks/windows/roles/dept_common/tasks/main.yml'),
+        ('/tmp/playbooks/windows/test_playbook.yml', '/tmp/playbooks/windows/roles/application/application2/tasks/main.yml'),
+        ('/tmp/playbooks/windows/roles/windows_common/tasks/main.yml', '/tmp/playbooks/windows/roles/applications/test_inclusion/tasks/main.yml'),
+        ('/tmp/playbooks/windows/roles/dept_common/tasks/main.yml', '/tmp/playbooks/windows/roles/applications/test_inclusion/tasks/main.yml'),
+        ('/tmp/playbooks/windows/roles/application/application2/tasks/main.yml', '/tmp/playbooks/windows/roles/applications/test_inclusion/tasks/main.yml')
+        ]
+    return edges
+
 @pytest.yield_fixture()
 def fake_nodes():
     """ Fake filesystem. """
