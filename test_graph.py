@@ -6,7 +6,7 @@ def test_find_nodes(roles_path, fake_nodes):
     nodes = find_nodes(roles_path)
     assert roles_path == '/tmp/playbooks'
     assert isinstance(nodes, list)
-    assert len(nodes) == 2
+    assert len(nodes) == 5
     assert isinstance(nodes[0], str)
     assert all('yml' in node or 'yaml' in node for node in nodes)
 
