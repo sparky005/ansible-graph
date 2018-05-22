@@ -5,7 +5,7 @@ import argparse
 import glob
 import logging
 import yaml
-from graphviz import Digraph
+import networkx as nx
 # pylint: disable=invalid-name
 # pylint: disable=line-too-long
 
@@ -171,11 +171,12 @@ def build_graph(edges):
     # remove duplicates
     edges = set(edges)
 
-    dot = Digraph(comment='Ansible Dependency Tree', node_attr={'fontsize': '48'})
-    dot.attr(ranksep='10.2', nodesep='1.2', layout='dot')
-    dot.graph_attr['rankdir'] = 'LR'
+    dot = nx.DiGraph()
+    # TODO: re-add these attrs
+    #dot.attr(ranksep='10.2', nodesep='1.2', layout='dot')
+    #dot.graph_attr['rankdir'] = 'LR'
     for edge in edges:
-        dot.edge(edge[0], edge[1])
+        dot.add_edge(edge[0], edge[1])
 
     return dot
 

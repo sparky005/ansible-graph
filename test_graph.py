@@ -1,7 +1,5 @@
-import pytest
 from graph import *
-from graphviz import Digraph
-from pyfakefs.fake_filesystem_unittest import Patcher
+import networkx as nx
 
 def test_find_nodes(roles_path, fake_nodes):
     nodes = find_nodes(roles_path)
@@ -42,7 +40,8 @@ def test_rename_edges(raw_edges, roles, fake_nodes):
 
 def test_build_graph(named_edges):
     graph = build_graph(named_edges)
-    assert isinstance(graph, Digraph)
-    source = graph.source
-    assert "Ansible Dependency Tree" in source
-    assert all(edge[0] in source and edge[1] in source for edge in named_edges)
+    assert isinstance(graph, nx.DiGraph)
+    #source = graph.source
+    #assert "Ansible Dependency Tree" in source
+    assert all(edge[0] in graph and edge[1] in graph for edge in named_edges)
+    #assert all(edge[0] in source and edge[1] in source for edge in named_edges)
