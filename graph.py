@@ -19,6 +19,10 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 def find_nodes(roles_path):
+    '''
+    Recursively search through directories
+    to find all vertices to build graph
+    '''
     # we don't care about the following types of files
     # so we will exclude them from the list of nodes
     # they will never be dependents, only dependencies
@@ -32,6 +36,10 @@ def find_nodes(roles_path):
     return nodes
 
 def parse_role(node, task):
+    '''
+    Parse a single role node and return edges
+    helper function for parse_roles
+    '''
     edges = []
     try:
         for key, value in task.items():
@@ -49,7 +57,7 @@ def parse_role(node, task):
 
 
 def parse_roles(nodes):
-    """Parses a list of roles"""
+    """Parses a list of roles nodes and return edges"""
     edges = []
     for node in nodes:
         logger.info("Now processing %s", node)
@@ -130,6 +138,7 @@ def parse_roles_and_playbooks(nodes):
     return edges
 
 def rename_edges(edges, nodes):
+    '''make edge names more legible'''
     # get role names
     roles = [node for node in nodes if 'roles' in node]
     # fix edge destinations to full paths
