@@ -186,7 +186,8 @@ if __name__ == '__main__':
     parser.add_argument(
         '--roles-path',
         '-r',
-        help='Path to roles directory'
+        help='Path to roles directory',
+        required=True
     )
     args = parser.parse_args()
 
@@ -197,4 +198,6 @@ if __name__ == '__main__':
     edges = rename_edges(edges, nodes)
 
     dot = build_graph(edges)
-    dot.render('test-output/round-table.gv')
+    dot = nx.drawing.nx_pydot.to_pydot(dot)
+    dot.write_png('pngout.png')
+    #dot.render('test-output/round-table.gv')
